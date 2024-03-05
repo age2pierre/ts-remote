@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
@@ -8,6 +10,9 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "types": ["vite/client"],
+    "plugins": [
+      { "transform": "typia/lib/transform" }
+    ],
     "noEmit": true,
     "isolatedModules": true,
   },

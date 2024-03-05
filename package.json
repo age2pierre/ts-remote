@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
+    "prepare": "ts-patch install && typia patch",
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
@@ -11,11 +12,15 @@
   "license": "MIT",
   "devDependencies": {
     "solid-devtools": "^0.29.2",
+    "ts-patch": "^3.1.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
-    "solid-js": "^1.8.11"
+    "rollup-plugin-typescript2": "^0.36.0",
+    "solid-js": "^1.8.11",
+    "typia": "^5.5.0",
+    "vite-plugin-inspect": "^0.8.3"
   }
 }
