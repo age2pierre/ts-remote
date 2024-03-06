@@ -4,23 +4,30 @@
   "description": "",
   "scripts": {
     "prepare": "ts-patch install && typia patch",
-    "start": "vite",
     "dev": "vite",
     "build": "vite build",
+    "clean": "rm -vrf dist",
+    "build:back": "tsc -p tsconfig.server.json",
+    "test": "node --inspect-brk dist/tests/",
     "serve": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.11.24",
+    "rollup-plugin-typescript2": "^0.36.0",
     "solid-devtools": "^0.29.2",
+    "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "typescript": "^5.3.3",
+    "ts-transformer-testing-library": "1.0.0-alpha.7",
+    "uvu": "^0.5.6",
     "vite": "^5.0.11",
+    "vite-plugin-inspect": "^0.8.3",
     "vite-plugin-solid": "^2.8.2"
   },
+  "typescript": "^5.3.3",
   "dependencies": {
-    "rollup-plugin-typescript2": "^0.36.0",
+    "hyper-express": "^6.14.12",
     "solid-js": "^1.8.11",
-    "typia": "^5.5.0",
-    "vite-plugin-inspect": "^0.8.3"
+    "typia": "^5.5.0"
   }
 }

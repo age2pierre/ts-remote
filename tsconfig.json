@@ -1,19 +1,8 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "strictNullChecks": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "types": ["vite/client"],
-    "plugins": [
-      { "transform": "typia/lib/transform" }
-    ],
-    "noEmit": true,
-    "isolatedModules": true,
-  },
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.server.json" }
+  ]
 }

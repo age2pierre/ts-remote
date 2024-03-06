@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["vite/client"],
+    "plugins": [
+      { "transform": "typia/lib/transform" }
+    ],
+    "noEmit": true,
+    "isolatedModules": true,
+  },
+  "include": [
+    "src/**/*.tsx",
+    "src/**/*.api.ts",
+  ]
+}
