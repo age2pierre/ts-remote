@@ -2,8 +2,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "lib": ["ES2023"],
-    "module": "node16",
-    "target": "es2022",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "Node",
     "sourceMap": true,
 
     "strict": true,
@@ -12,9 +13,8 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["@types/node"],
     "plugins": [
-      { "transform": "./src/lib/api-transformer.ts", "type": "raw" },
       { "transform": "typia/lib/transform" }
     ]
   },
-  "include": ["src/**/*.api.ts", "src/**/*.ts", "tests/**/*.ts"]
+  "include": ["src/**/*.api.ts", "src/**/*.back.ts", "src/server.ts"]
 }
