@@ -2,23 +2,22 @@ import * as ts from "typescript";
 
 const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
   return (sourceFile): ts.SourceFile => {
-    const fileName = sourceFile.fileName;
-    if (!fileName.endsWith(".api.ts")) {
-      return sourceFile;
-    }
-
-    const registerBlocks: ts.Statement[] = [];
+    const handleBlocks: ts.Block[] = [];
 
     const visitor: ts.Visitor = (node) => {
       if (
         ts.isFunctionDeclaration(node) &&
-        node.modifiers?.some(ts.isExportSpecifier)
+        node.modifiers?.some(
+          (mod) => mod.kind === ts.SyntaxKind.ExportKeyword
+        ) &&
+        ts.isSourceFile(node.parent) &&
+        node.parent.fileName.endsWith(".api.ts")
       ) {
         const functionName = node.name?.text;
         if (!functionName) {
           return node;
         }
-        const handlerName = `${fileName.replace(
+        const handlerName = `${node.parent.fileName.replace(
           ".api.ts",
           ""
         )}-${functionName}`;
@@ -34,7 +33,10 @@ const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
                     undefined,
                     undefined,
                     ts.factory.createCallExpression(
-                      ts.factory.createIdentifier("createIsParse"),
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("typiaJson"),
+                        ts.factory.createIdentifier("createIsParse")
+                      ),
                       [
                         ts.factory.createTypeReferenceNode(
                           ts.factory.createIdentifier("Parameters"),
@@ -62,7 +64,10 @@ const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
                     undefined,
                     undefined,
                     ts.factory.createCallExpression(
-                      ts.factory.createIdentifier("createStringify"),
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("typiaJson"),
+                        ts.factory.createIdentifier("createStringify")
+                      ),
                       [
                         ts.factory.createTypeReferenceNode(
                           ts.factory.createIdentifier("Awaited"),
@@ -90,7 +95,10 @@ const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
             ),
             ts.factory.createExpressionStatement(
               ts.factory.createCallExpression(
-                ts.factory.createIdentifier("registerHandler"),
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createIdentifier("tsRemoteServer"),
+                  ts.factory.createIdentifier("registerHandler")
+                ),
                 undefined,
                 [
                   ts.factory.createIdentifier(functionName),
@@ -104,55 +112,51 @@ const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
           true
         );
 
-        registerBlocks.push(handlerBlock);
+        handleBlocks.push(handlerBlock);
+        return node;
       }
+
       return ts.visitEachChild(node, visitor, context);
     };
 
     ts.visitNode(sourceFile, visitor);
 
-    sourceFile = ts.factory.updateSourceFile(sourceFile, [
-      ts.factory.createImportDeclaration(
-        undefined,
-        ts.factory.createImportClause(
-          false,
+    if (
+      ts.isSourceFile(sourceFile) &&
+      sourceFile.fileName.endsWith(".api.ts")
+    ) {
+      // Create a new SourceFile with the desired changes
+      const updatedSourceFile = ts.factory.updateSourceFile(sourceFile, [
+        ts.factory.createImportDeclaration(
           undefined,
-          ts.factory.createNamedImports([
-            ts.factory.createImportSpecifier(
-              false,
-              undefined,
-              ts.factory.createIdentifier("createIsParse")
-            ),
-            ts.factory.createImportSpecifier(
-              false,
-              undefined,
-              ts.factory.createIdentifier("createStringify")
-            ),
-          ])
+          ts.factory.createImportClause(
+            false,
+            undefined,
+            ts.factory.createNamespaceImport(
+              ts.factory.createIdentifier("typiaJson")
+            )
+          ),
+          ts.factory.createStringLiteral("typia/lib/json"),
+          undefined
         ),
-        ts.factory.createStringLiteral("typia/lib/json"),
-        undefined
-      ),
-      ts.factory.createImportDeclaration(
-        undefined,
-        ts.factory.createImportClause(
-          false,
+        ts.factory.createImportDeclaration(
           undefined,
-          ts.factory.createNamedImports([
-            ts.factory.createImportSpecifier(
-              false,
-              undefined,
-              ts.factory.createIdentifier("registerHandler")
-            ),
-          ])
+          ts.factory.createImportClause(
+            false,
+            undefined,
+            ts.factory.createNamespaceImport(
+              ts.factory.createIdentifier("tsRemoteServer")
+            )
+          ),
+          ts.factory.createStringLiteral("./server"),
+          undefined
         ),
-        ts.factory.createStringLiteral("./server"),
-        undefined
-      ),
-      // Ensures the rest of the source files statements are still defined.
-      ...sourceFile.statements,
-      ...registerBlocks,
-    ]);
+        ...sourceFile.statements,
+        ...handleBlocks,
+      ]);
+
+      return updatedSourceFile;
+    }
 
     return sourceFile;
   };
