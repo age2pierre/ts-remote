@@ -3,7 +3,7 @@ import typescript from "rollup-plugin-typescript2";
 import multi from "@rollup/plugin-multi-entry";
 
 export default {
-  input: ["src/server.ts", "src/*.api.ts"],
+  input: ["src/**/*.back.ts", "src/**/*.api.ts"],
   output: {
     dir: "dist/back/",
     format: "cjs",

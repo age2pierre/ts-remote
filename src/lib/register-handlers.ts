@@ -1,5 +1,5 @@
 import type { Primitive, Resolved } from "typia";
-import { webserver } from "../server";
+import { webserver } from "../index.back";
 
 export class ParsingParamsError extends Error {}
 export class SendingResponseError extends Error {}
@@ -17,7 +17,7 @@ export function registerHandler<F extends (...args: any[]) => any>(
     if (!parsedReq) {
       throw new ParsingParamsError();
     }
-    const result = await handler(...parsedReq)
+    const result = await handler(...parsedReq);
     const strRes = stringifyResponse(result);
 
     const sent = res.status(200).send(strRes);

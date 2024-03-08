@@ -29,6 +29,6 @@ export type Dude = {
 };
 
 export async function greet(dudes: Dude[]): Promise<string> {
-  // await setTimeout(1000);
+  await setTimeout(1000);
   return `Hello ${dudes[0].name} !!`;
 }

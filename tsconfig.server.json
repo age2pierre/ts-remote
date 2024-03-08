@@ -14,5 +14,5 @@
     "types": ["@types/node"],
     "plugins": [{ "transform": "typia/lib/transform" }]
   },
-  "include": ["src/**/*.api.ts", "src/**/*.back.ts", "src/server.ts"]
+  "include": ["src/**/*.api.ts", "src/**/*.back.ts"]
 }
