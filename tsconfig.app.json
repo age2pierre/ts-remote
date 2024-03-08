@@ -1,22 +1,18 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client"],
-    "plugins": [
-      { "transform": "typia/lib/transform" }
-    ],
+    "types": ["vite/client", "@types/node"],
+    "plugins": [{ "transform": "typia/lib/transform" }],
     "noEmit": true,
-    "isolatedModules": true,
+    "isolatedModules": true
   },
-  "include": [
-    "src/**/*.tsx",
-    "src/**/*.api.ts",
-  ]
+  "include": ["src/**/*.tsx"]
 }

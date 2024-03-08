@@ -4,12 +4,17 @@
   "description": "",
   "scripts": {
     "prepare": "ts-patch install && typia patch",
-    "dev": "vite",
-    "build": "vite build",
-    "clean": "rm -vrf dist",
+    "dev:front": "vite",
+    "dev:back": "rollup -c --watch --watch.onEnd='pnpm run start:back'",
+    "clean": "rm -vrf dist/",
+    "clean:front": "rm -vrf dist/front/",
+    "clean:back": "rm -vrf dist/back/",
+    "build": "npm run build:front && npm run build:back",
+    "build:front": "vite build",
     "build:back": "rollup -c",
-    "test": "node --inspect-brk dist/tests/",
-    "serve": "vite preview"
+    "start:front": "vite preview",
+    "start:back": "node ./dist/back/multi-entry.js",
+    "debug:back": "node --inspect-brk ./dist/back/multi-entry.js"
   },
   "license": "MIT",
   "devDependencies": {
@@ -20,7 +25,6 @@
     "solid-devtools": "^0.29.2",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "ts-transformer-testing-library": "1.0.0-alpha.7",
     "uvu": "^0.5.6",
     "vite": "^5.0.11",
     "vite-plugin-inspect": "^0.8.3",

@@ -13,7 +13,7 @@ export default function apiTransformer({ useProtoBuff = false }) {
         /**
          * @type {string[]}
          */
-        const blocks = [];
+        const registrations = [];
         const sourceFile = ts.createSourceFile(
           id,
           source,
@@ -35,40 +35,24 @@ export default function apiTransformer({ useProtoBuff = false }) {
             )}-${functionName}`;
 
             if (useProtoBuff) {
-              blocks.push(`{
-                const parseParams = typiaProto.createIsDecode<{
-                  params: Parameters<typeof ${functionName}>[0];
-                }>();
-                const bufferizeResponse = typiaProto.createEncode<{
-                  response: Awaited<ReturnType<typeof ${functionName}>>;
-                }>();
-              
-                registerProtobufHandler(
-                  ${functionName},
-                  "${handlerName}",
-                  parseParams,
-                  bufferizeResponse
-                );
-              }`);
+              registrations.push(
+                `registerProtobufHandler(${functionName},"${handlerName}",typiaProto.createIsDecode<{params: Parameters<typeof ${functionName}>[0];}>(),typiaProto.createEncode<{response: Awaited<ReturnType<typeof ${functionName}>>;}>());`
+              );
             } else {
-              blocks.push(`{
-                const parseParams = createIsParse<Parameters<typeof ${functionName}>>();
-                const stringifyResponse =
-                  createStringify<Awaited<ReturnType<typeof ${functionName}>>>();
-                registerHandler(greet, "${handlerName}", parseParams, stringifyResponse);
-              }`);
+              registrations.push(
+                `registerHandler(${functionName},"${handlerName}",typiaJson.createIsParse<Parameters<typeof ${functionName}>>(),typiaJson.createStringify<Awaited<ReturnType<typeof ${functionName}>>>());`
+              );
             }
           }
         });
 
         const imports = useProtoBuff
-          ? 'import typiaProto from "typia/lib/protobuf";\n\
-        import { registerProtobufHandler } from "./server";'
-          : 'import { createIsParse, createStringify } from "typia/lib/json";\n\
-        import { registerHandler } from "./server";';
+          ? 'import typiaProto from "typia/lib/protobuf";\nimport { registerProtobufHandler } from "./lib/register-handlers";'
+          : 'import typiaJson from "typia/lib/json";\nimport { registerHandler } from "./lib/register-handlers";';
 
-        const modifiedSource = `${imports}\n${source}\n${blocks.join("\n")}`;
-        console.log(modifiedSource);
+        const modifiedSource = `${imports}\n${source}\n${registrations.join(
+          "\n"
+        )}`;
         return modifiedSource;
       }
       return null;

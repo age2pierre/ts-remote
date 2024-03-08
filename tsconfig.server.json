@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["ES2023"],
+    "lib": ["es2023"],
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2022",
     "moduleResolution": "Node",
     "sourceMap": true,
 
@@ -12,9 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "types": ["@types/node"],
-    "plugins": [
-      { "transform": "typia/lib/transform" }
-    ]
+    "plugins": [{ "transform": "typia/lib/transform" }]
   },
   "include": ["src/**/*.api.ts", "src/**/*.back.ts", "src/server.ts"]
 }
