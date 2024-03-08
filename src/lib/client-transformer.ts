@@ -1,15 +1,6 @@
 import ts from "typescript";
 import path from "node:path";
-
-function replaceInString(
-  input: string,
-  changes: Array<[start: number, width: number, txt: string]>
-): string {
-  return changes.reduce((result, change) => {
-    const [start, width, txt] = change;
-    return result.substring(0, start) + txt + input.substring(start + width);
-  }, input);
-}
+import MagicString from "magic-string";
 
 function trimQuotesAndWhitespace(input: string): string {
   const quotesRegex = /^['"](.*)['"]$/;
@@ -38,9 +29,9 @@ export default function clientTransformer({ useProtoBuff = false }) {
               ".api"
             )
           ) {
-            // TODO
             const start = node.getStart();
             const width = node.getWidth();
+
             const baseFilename = path.basename(
               trimQuotesAndWhitespace(node.moduleSpecifier.getText()),
               ".api"
@@ -58,19 +49,23 @@ export default function clientTransformer({ useProtoBuff = false }) {
                   ] as const
               );
 
-              const txt = `import type {
-                ${nameImports
-                  .map(([pn, n]) => `${pn} as __${n}TypeAlias,`)
-                  .join("\n")}
-              } from ${node.moduleSpecifier.getText()};
-              ${nameImports
-                .map(([pn, n]) =>
-                  useProtoBuff
-                    ? `const ${n} = factoryProtoRemoteCall<typeof __${n}TypeAlias>("${baseFilename}-${n}",typiaProto.createEncode<{ params: Parameters<typeof __${n}TypeAlias>[0] }>(),typiaProto.createIsDecode<{response: Awaited<ReturnType<typeof __${n}TypeAlias>>;}>());`
-                    : `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias>("${baseFilename}-${n}",typiaJson.createStringify<Parameters<typeof __${n}TypeAlias>>(),typiaJson.createIsParse<Awaited<ReturnType<typeof __${n}TypeAlias>>>());`
-                )
-                .join("\n")}
-              `;
+              const txt =
+                `import type {${nameImports
+                  .map(([pn, n]) => `${pn} as __${n}TypeAlias`)
+                  .join(",")}} from ${node.moduleSpecifier.getText()};\n` +
+                nameImports
+                  .map(([pn, n]) =>
+                    useProtoBuff
+                      ? `const ${n} = factoryProtoRemoteCall<typeof __${n}TypeAlias>(\n` +
+                        `  "${baseFilename}-${n}",\n` +
+                        `  typiaProto.createEncode<{ params: Parameters<typeof __${n}TypeAlias>[0] }>(),\n` +
+                        `  typiaProto.createIsDecode<{response: Awaited<ReturnType<typeof __${n}TypeAlias>>;}>()\n);\n`
+                      : `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias>(\n` +
+                        `  "${baseFilename}-${n}",\n` +
+                        `  typiaJson.createStringify<Parameters<typeof __${n}TypeAlias>>(),\n` +
+                        `  typiaJson.createIsParse<Awaited<ReturnType<typeof __${n}TypeAlias>>>()\n);\n`
+                  )
+                  .join("");
 
               changes.push([start, width, txt]);
             }
@@ -81,12 +76,27 @@ export default function clientTransformer({ useProtoBuff = false }) {
           return null;
         }
         const imports = useProtoBuff
-          ? 'import * as typiaProto from "typia/lib/protobuf";\nimport { factoryProtoRemoteCall } from "./lib/client";'
-          : 'import * as typiaJson from "typia/lib/json";\nimport { factoryRemoteCall } from "./lib/client";';
+          ? 'import * as typiaProto from "typia/lib/protobuf";\n' +
+            'import { factoryProtoRemoteCall } from "./lib/client";\n'
+          : 'import * as typiaJson from "typia/lib/json";\n' +
+            'import { factoryRemoteCall } from "./lib/client";\n';
 
-        const modifiedSource = replaceInString(source, changes);
-        const result = `${imports}\n${modifiedSource}`;
-        return result;
+        const magicSource = new MagicString(source);
+        magicSource.prepend(imports);
+
+        for (const [start, width, text] of changes) {
+          const end = start + width;
+          magicSource.overwrite(start, end, text, { contentOnly: true });
+        }
+
+        const codeWithMap = {
+          code: magicSource.toString(),
+          map: magicSource.generateMap({
+            hires: "boundary",
+          }),
+        };
+
+        return codeWithMap;
       }
       return null;
     },

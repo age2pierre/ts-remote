@@ -1,5 +1,6 @@
 import ts from "typescript";
 import path from "node:path";
+import MagicString from "magic-string";
 
 export default function apiTransformer({ useProtoBuff = false }) {
   return {
@@ -36,24 +37,35 @@ export default function apiTransformer({ useProtoBuff = false }) {
 
             if (useProtoBuff) {
               registrations.push(
-                `registerProtobufHandler(${functionName},"${handlerName}",typiaProto.createIsDecode<{params: Parameters<typeof ${functionName}>[0];}>(),typiaProto.createEncode<{response: Awaited<ReturnType<typeof ${functionName}>>;}>());`
+                `registerProtobufHandler(\n  ${functionName},\n  "${handlerName}",\n` +
+                  `  typiaProto.createIsDecode<{params: Parameters<typeof ${functionName}>[0];}>(),\n` +
+                  `  typiaProto.createEncode<{response: Awaited<ReturnType<typeof ${functionName}>>;}>()\n);`
               );
             } else {
               registrations.push(
-                `registerHandler(${functionName},"${handlerName}",typiaJson.createIsParse<Parameters<typeof ${functionName}>>(),typiaJson.createStringify<Awaited<ReturnType<typeof ${functionName}>>>());`
+                `registerHandler(\n  ${functionName},\n  "${handlerName}",\n` +
+                  `  typiaJson.createIsParse<Parameters<typeof ${functionName}>>(),\n` +
+                  `  typiaJson.createStringify<Awaited<ReturnType<typeof ${functionName}>>>()\n);`
               );
             }
           }
         });
 
         const imports = useProtoBuff
-          ? 'import typiaProto from "typia/lib/protobuf";\nimport { registerProtobufHandler } from "./lib/register-handlers";'
-          : 'import typiaJson from "typia/lib/json";\nimport { registerHandler } from "./lib/register-handlers";';
+          ? 'import typiaProto from "typia/lib/protobuf";\nimport { registerProtobufHandler } from "./lib/register-handlers";\n'
+          : 'import typiaJson from "typia/lib/json";\nimport { registerHandler } from "./lib/register-handlers";\n';
 
-        const modifiedSource = `${imports}\n${source}\n${registrations.join(
-          "\n"
-        )}`;
-        return modifiedSource;
+        const magicSource = new MagicString(source);
+        magicSource.prepend(imports);
+        magicSource.append(registrations.join("\n"));
+
+        const codeWithMap = {
+          code: magicSource.toString(),
+          map: magicSource.generateMap({
+            hires: "boundary",
+          }),
+        };
+        return codeWithMap;
       }
       return null;
     },

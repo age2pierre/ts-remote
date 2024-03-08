@@ -32,3 +32,8 @@ export async function greet(dudes: Dude[]): Promise<string> {
   await setTimeout(1000);
   return `Hello ${dudes[0].name} !!`;
 }
+
+export async function adieu(dudes: Dude[]): Promise<string> {
+  await setTimeout(1000);
+  return `Adieu ${dudes[0].name} !!`;
+}
