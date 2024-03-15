@@ -11,6 +11,9 @@ dependencies:
   magic-string:
     specifier: ^0.30.8
     version: 0.30.8
+  seroval:
+    specifier: ^1.0.5
+    version: 1.0.5
   solid-js:
     specifier: ^1.8.11
     version: 1.8.11
@@ -35,8 +38,8 @@ devDependencies:
     specifier: ^0.36.0
     version: 0.36.0(rollup@4.9.5)(typescript@5.3.3)
   solid-devtools:
-    specifier: ^0.29.2
-    version: 0.29.2(solid-js@1.8.11)(vite@5.0.11)
+    specifier: ^0.29.3
+    version: 0.29.3(solid-js@1.8.11)(vite@5.0.11)
   ts-node:
     specifier: ^10.9.2
     version: 10.9.2(@types/node@20.11.24)(typescript@5.3.3)
@@ -2075,16 +2078,16 @@ packages:
       lru-cache: 6.0.0
     dev: true
 
-  /seroval-plugins@1.0.4(seroval@1.0.4):
+  /seroval-plugins@1.0.4(seroval@1.0.5):
     resolution: {integrity: sha512-DQ2IK6oQVvy8k+c2V5x5YCtUa/GGGsUwUBNN9UqohrZ0rWdUapBFpNMYP1bCyRHoxOJjdKGl+dieacFIpU/i1A==}
     engines: {node: '>=10'}
     peerDependencies:
       seroval: ^1.0
     dependencies:
-      seroval: 1.0.4
+      seroval: 1.0.5
 
-  /seroval@1.0.4:
-    resolution: {integrity: sha512-qQs/N+KfJu83rmszFQaTxcoJoPn6KNUruX4KmnmyD0oZkUoiNvJ1rpdYKDf4YHM05k+HOgCxa3yvf15QbVijGg==}
+  /seroval@1.0.5:
+    resolution: {integrity: sha512-TM+Z11tHHvQVQKeNlOUonOWnsNM+2IBwZ4vwoi4j3zKzIpc5IDw8WPwCfcc8F17wy6cBcJGbZbFOR0UCuTZHQA==}
     engines: {node: '>=10'}
 
   /signal-exit@3.0.7:
@@ -2100,12 +2103,12 @@ packages:
       totalist: 3.0.1
     dev: true
 
-  /solid-devtools@0.29.2(solid-js@1.8.11)(vite@5.0.11):
-    resolution: {integrity: sha512-sfGLBSIQ3E5dFha5UCE5wKnz+War99JNAOggfBbwhltXL8lbIG1PnKKB9N2pvloZuFzMtT/u1Qbb/ubqXnw2Sg==}
+  /solid-devtools@0.29.3(solid-js@1.8.11)(vite@5.0.11):
+    resolution: {integrity: sha512-9j3VxVbEoC54ML22gAMytR8ZS1nk9xKatsWziKSkI4c/Bcyh4sxQBGESHuXSLs9xaxpyGVTmFl3hknoxEpKzlA==}
     peerDependencies:
       solid-js: ^1.8.0
       solid-start: ^0.3.0
-      vite: ^2.2.3 || ^3.0.0 || ^4.0.0
+      vite: ^2.2.3 || ^3.0.0 || ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
       solid-start:
         optional: true
@@ -2127,8 +2130,8 @@ packages:
     resolution: {integrity: sha512-WdwmER+TwBJiN4rVQTVBxocg+9pKlOs41KzPYntrC86xO5sek8TzBYozPEZPL1IRWDouf2lMrvSbIs3CanlPvQ==}
     dependencies:
       csstype: 3.1.2
-      seroval: 1.0.4
-      seroval-plugins: 1.0.4(seroval@1.0.4)
+      seroval: 1.0.5
+      seroval-plugins: 1.0.4(seroval@1.0.5)
 
   /solid-refresh@0.6.3(solid-js@1.8.11):
     resolution: {integrity: sha512-F3aPsX6hVw9ttm5LYlth8Q15x6MlI/J3Dn+o3EQyRTtTxidepSTwAYdozt01/YA+7ObcciagGEyXIopGZzQtbA==}

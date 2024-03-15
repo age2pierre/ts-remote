@@ -28,12 +28,7 @@ export type Dude = {
   favoriteFruit: string;
 };
 
-export async function greet(dudes: Dude[]): Promise<string> {
+export async function greet(dudes: Dude[]): Promise<{ msg: string }> {
   await setTimeout(1000);
-  return `Hello ${dudes[0].name} !!`;
-}
-
-export async function adieu(dudes: Dude[]): Promise<string> {
-  await setTimeout(1000);
-  return `Adieu ${dudes[0].name} !!`;
+  return { msg: `Hello ${dudes[0].name} !!` };
 }

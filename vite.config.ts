@@ -15,7 +15,7 @@ export default defineConfig({
     */
     // devtools(),
     clientTransformer({
-      useProtoBuff: true,
+      encoding: "seroval",
     }),
     {
       ...typescript({

@@ -8,7 +8,15 @@ function trimQuotesAndWhitespace(input: string): string {
   return trimmed;
 }
 
-export default function clientTransformer({ useProtoBuff = false }) {
+export default function clientTransformer({
+  encoding = "proto",
+}: {
+  encoding?: "json" | "proto" | "seroval";
+}) {
+  if (encoding !== "json" && encoding !== "proto" && encoding !== "seroval") {
+    throw Error("apiTransformer: invalid encoding params");
+  }
+
   return {
     name: "client-transformer",
     enforce: "pre" as const,
@@ -54,17 +62,29 @@ export default function clientTransformer({ useProtoBuff = false }) {
                   .map(([pn, n]) => `${pn} as __${n}TypeAlias`)
                   .join(",")}} from ${node.moduleSpecifier.getText()};\n` +
                 nameImports
-                  .map(([pn, n]) =>
-                    useProtoBuff
-                      ? `const ${n} = factoryProtoRemoteCall<typeof __${n}TypeAlias>(\n` +
+                  .map(([pn, n]) => {
+                    if (encoding === "proto") {
+                      return (
+                        `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias, Awaited<ReturnType<typeof __${n}TypeAlias>> >(\n` +
                         `  "${baseFilename}-${n}",\n` +
-                        `  typiaProto.createEncode<{ params: Parameters<typeof __${n}TypeAlias>[0] }>(),\n` +
-                        `  typiaProto.createIsDecode<{response: Awaited<ReturnType<typeof __${n}TypeAlias>>;}>()\n);\n`
-                      : `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias>(\n` +
+                        `  typia.protobuf.createEncode<{ params: Parameters<typeof __${n}TypeAlias>[0] }>(),\n` +
+                        `  typia.protobuf.createIsDecode<{response: Awaited<ReturnType<typeof __${n}TypeAlias>>;}>()\n);\n`
+                      );
+                    } else if (encoding === "json") {
+                      return (
+                        `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias>(\n` +
                         `  "${baseFilename}-${n}",\n` +
-                        `  typiaJson.createStringify<Parameters<typeof __${n}TypeAlias>>(),\n` +
-                        `  typiaJson.createIsParse<Awaited<ReturnType<typeof __${n}TypeAlias>>>()\n);\n`
-                  )
+                        `  typia.json.createStringify<Parameters<typeof __${n}TypeAlias>>(),\n` +
+                        `  typia.json.createIsParse<Awaited<ReturnType<typeof __${n}TypeAlias>>>()\n);\n`
+                      );
+                    } else if (encoding === "seroval") {
+                      return (
+                        `const ${n} = factoryRemoteCall<typeof __${n}TypeAlias, Awaited<ReturnType<typeof __${n}TypeAlias>> >(\n` +
+                        `  "${baseFilename}-${n}",\n` +
+                        `  typia.createIs<Awaited<ReturnType<typeof __${n}TypeAlias>>>()\n);\n`
+                      );
+                    }
+                  })
                   .join("");
 
               changes.push([start, width, txt]);
@@ -75,11 +95,9 @@ export default function clientTransformer({ useProtoBuff = false }) {
         if (changes.length < 1) {
           return null;
         }
-        const imports = useProtoBuff
-          ? 'import * as typiaProto from "typia/lib/protobuf";\n' +
-            'import { factoryProtoRemoteCall } from "./lib/client";\n'
-          : 'import * as typiaJson from "typia/lib/json";\n' +
-            'import { factoryRemoteCall } from "./lib/client";\n';
+        const imports =
+          'import typia from "typia";\n' +
+          `import { factoryRemoteCall } from "./lib/client-${encoding}";\n`;
 
         const magicSource = new MagicString(source);
         magicSource.prepend(imports);

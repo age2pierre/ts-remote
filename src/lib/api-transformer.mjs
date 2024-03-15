@@ -2,7 +2,14 @@ import ts from "typescript";
 import path from "node:path";
 import MagicString from "magic-string";
 
-export default function apiTransformer({ useProtoBuff = false }) {
+/**
+ * @param {{ encoding?: "json" | "proto" | "seroval"}} param0
+ */
+export default function apiTransformer({ encoding = "proto" }) {
+  if (encoding !== "json" && encoding !== "proto" && encoding !== "seroval") {
+    throw Error("apiTransformer: invalid encoding params");
+  }
+
   return {
     name: "api-transformer",
     /**
@@ -35,25 +42,39 @@ export default function apiTransformer({ useProtoBuff = false }) {
               ".api.ts"
             )}-${functionName}`;
 
-            if (useProtoBuff) {
+            if (encoding === "proto") {
               registrations.push(
-                `registerProtobufHandler(\n  ${functionName},\n  "${handlerName}",\n` +
-                  `  typiaProto.createIsDecode<{params: Parameters<typeof ${functionName}>[0];}>(),\n` +
-                  `  typiaProto.createEncode<{response: Awaited<ReturnType<typeof ${functionName}>>;}>()\n);`
+                `registerHandler(\n` +
+                  `  ${functionName},\n` +
+                  ` "${handlerName}",\n` +
+                  `  typia.protobuf.createIsDecode<{params: Parameters<typeof ${functionName}>[0];}>(),\n` +
+                  `  typia.protobuf.createEncode<{response: Awaited<ReturnType<typeof ${functionName}>>;}>()\n` +
+                  `);`
               );
-            } else {
+            } else if (encoding === "json") {
               registrations.push(
-                `registerHandler(\n  ${functionName},\n  "${handlerName}",\n` +
-                  `  typiaJson.createIsParse<Parameters<typeof ${functionName}>>(),\n` +
-                  `  typiaJson.createStringify<Awaited<ReturnType<typeof ${functionName}>>>()\n);`
+                `registerHandler(\n` +
+                  `  ${functionName},\n` +
+                  `  "${handlerName}",\n` +
+                  `  typia.json.createIsParse<Parameters<typeof ${functionName}>>(),\n` +
+                  `  typia.json.createStringify<Awaited<ReturnType<typeof ${functionName}>>>()\n` +
+                  `);`
+              );
+            } else if (encoding === "seroval") {
+              registrations.push(
+                `registerHandler(\n` +
+                  `  ${functionName},\n` +
+                  `  "${handlerName}",\n` +
+                  `  typia.createIs<Parameters<typeof ${functionName}>>()\n` +
+                  `);`
               );
             }
           }
         });
 
-        const imports = useProtoBuff
-          ? 'import typiaProto from "typia/lib/protobuf";\nimport { registerProtobufHandler } from "./lib/register-handlers";\n'
-          : 'import typiaJson from "typia/lib/json";\nimport { registerHandler } from "./lib/register-handlers";\n';
+        const imports =
+          'import typia from "typia";\n' +
+          `import { registerHandler } from "./lib/handler-${encoding}";\n`;
 
         const magicSource = new MagicString(source);
         magicSource.prepend(imports);

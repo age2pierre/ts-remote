@@ -12,7 +12,7 @@ export default {
   plugins: [
     multi(),
     apiTransformer({
-      useProtoBuff: true,
+      encoding: "seroval",
     }),
     typescript({
       tsconfig: "./tsconfig.server.json",
