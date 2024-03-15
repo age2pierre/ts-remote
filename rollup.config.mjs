@@ -5,8 +5,8 @@ import multi from "@rollup/plugin-multi-entry";
 export default {
   input: ["src/**/*.back.ts", "src/**/*.api.ts"],
   output: {
-    dir: "dist/back/",
-    format: "cjs",
+    file: "dist/back/index.mjs",
+    format: "esm",
     sourcemap: true,
   },
   plugins: [

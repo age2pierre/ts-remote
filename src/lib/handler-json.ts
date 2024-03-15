@@ -1,5 +1,5 @@
 import type { Primitive } from "typia";
-import { webserver } from "../index.back";
+import { router } from "../index.back";
 import { ParsingParamsError, SendingResponseError } from "./errors";
 
 export function registerHandler<F extends (...args: any[]) => any>(
@@ -9,7 +9,7 @@ export function registerHandler<F extends (...args: any[]) => any>(
   stringifyResponse: (input: Awaited<ReturnType<F>>) => string
 ): void {
   console.log("registerHandler (json) => " + remoteName + " init !");
-  webserver.post("/ts-remote/" + remoteName, async (req, res) => {
+  router.post("/" + remoteName, async (req, res) => {
     const parsedReq = parseParams(await req.text());
     if (!parsedReq) {
       throw new ParsingParamsError();

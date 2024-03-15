@@ -1,4 +1,5 @@
 import { setTimeout } from "node:timers/promises";
+import { contextStorage } from "./context.back";
 
 export type Dude = {
   _id: string;
@@ -29,6 +30,7 @@ export type Dude = {
 };
 
 export async function greet(dudes: Dude[]): Promise<{ msg: string }> {
+  const ctx = contextStorage.getStore()
   await setTimeout(1000);
-  return { msg: `Hello ${dudes[0].name} !!` };
+  return { msg: `Hello ${dudes[0].name} !! requestId ${ctx?.requestId}` };
 }

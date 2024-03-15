@@ -13,8 +13,8 @@
     "build:front": "vite build",
     "build:back": "rollup -c",
     "start:front": "vite preview",
-    "start:back": "node ./dist/back/multi-entry.js",
-    "debug:back": "node --inspect-brk ./dist/back/multi-entry.js"
+    "start:back": "node ./dist/back/index.mjs",
+    "debug:back": "node --inspect-brk ./dist/back/index.mjs"
   },
   "license": "MIT",
   "devDependencies": {
